@@ -1,0 +1,1046 @@
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 导出版本 -->
+<title>我的书签导航</title>
+<style>
+:root {
+  --bg-primary: #f8fafc; --bg-secondary: #ffffff; --bg-card: #ffffff;
+  --bg-hover: #f1f5f9; --text-primary: #0f172a; --text-secondary: #64748b;
+  --text-muted: #94a3b8; --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-hover: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+  --accent: #2563eb; --radius: 12px; --radius-sm: 8px;
+  --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+}
+[data-theme="dark"] {
+  --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
+  --bg-hover: #334155; --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+  --text-muted: #64748b; --border: #334155;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-hover: 0 10px 25px rgba(0,0,0,0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg-primary); color: var(--text-primary); line-height: 1.6;
+  transition: background 0.3s, color 0.3s; min-height: 100vh;
+}
+.header {
+  position: sticky; top: 0; z-index: 100; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); backdrop-filter: blur(10px);
+  padding: 14px 24px; transition: background 0.3s;
+}
+.header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.logo {
+  font-size: 20px; font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  white-space: nowrap;
+}
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box input {
+  width: 100%; padding: 10px 16px 10px 42px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary);
+  font-size: 14px; outline: none; transition: all 0.2s;
+}
+.search-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+.search-box::before { content: "🔍"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.6; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn-icon {
+  width: 38px; height: 38px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-primary); color: var(--text-primary); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.btn-icon:hover { background: var(--bg-hover); transform: translateY(-1px); }
+.btn-icon.active { background: var(--accent); color: white; border-color: var(--accent); }
+.stats { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+.admin-bar {
+  position: sticky; top: 67px; z-index: 98; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); padding: 10px 24px;
+  display: none; transition: background 0.3s;
+}
+.admin-bar.show { display: block; }
+.admin-bar-inner {
+  max-width: 1400px; margin: 0 auto; display: flex; align-items: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.admin-bar .tip { font-size: 12px; color: var(--text-muted); flex: 1; min-width: 200px; }
+.btn {
+  padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-primary); color: var(--text-primary); cursor: pointer;
+  font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-hover); }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+.btn-success { background: var(--success); color: white; border-color: var(--success); }
+.btn-warning { background: var(--warning); color: white; border-color: var(--warning); }
+.btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.cat-nav {
+  position: sticky; top: 67px; z-index: 99; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); padding: 10px 24px;
+  transition: top 0.2s, background 0.3s;
+}
+body.admin-mode .cat-nav { top: 115px; }
+.cat-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cat-tag-row { display: inline-flex; align-items: center; gap: 2px; }
+.cat-tag {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--bg-primary); color: var(--text-secondary); font-size: 13px;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.cat-tag:hover { background: var(--bg-hover); color: var(--text-primary); }
+.cat-tag.active { background: var(--accent); color: white; border-color: var(--accent); }
+.cat-tag .count { font-size: 11px; opacity: 0.7; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; }
+.cat-tag:not(.active) .count { background: var(--bg-hover); color: var(--text-muted); }
+.cat-edit, .cat-del {
+  display: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg-hover); border: 1px solid var(--border); cursor: pointer; font-size: 10px;
+  align-items: center; justify-content: center; color: var(--text-secondary); line-height: 1;
+}
+body.admin-mode .cat-edit, body.admin-mode .cat-del { display: flex; }
+.cat-edit:hover, .cat-del:hover { background: var(--border); }
+
+.main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+.category-section { margin-bottom: 40px; scroll-margin-top: 130px; }
+body.admin-mode .category-section { scroll-margin-top: 180px; }
+.category-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  padding-bottom: 12px; border-bottom: 2px solid var(--border);
+}
+.cat-icon {
+  font-size: 28px; width: 48px; height: 48px; display: flex; align-items: center;
+  justify-content: center; border-radius: var(--radius); background: var(--bg-card); box-shadow: var(--shadow);
+}
+.cat-title-group h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.cat-title-group p { font-size: 12px; color: var(--text-muted); }
+.cat-title-group .cat-actions { display: none; gap: 6px; }
+body.admin-mode .cat-title-group .cat-actions { display: inline-flex; }
+.cat-title-group .cat-actions button {
+  width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg-primary); cursor: pointer; font-size: 12px; display: flex;
+  align-items: center; justify-content: center; color: var(--text-secondary);
+}
+.cat-title-group .cat-actions button:hover { background: var(--bg-hover); }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.card {
+  display: flex; align-items: center; gap: 12px; padding: 14px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text-primary); transition: all 0.2s;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--card-color, var(--accent)); opacity: 0; transition: opacity 0.2s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--card-color, var(--accent)); }
+.card:hover::before { opacity: 1; }
+.card-favicon {
+  width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0;
+  background: var(--card-color, var(--accent));
+}
+.card-info { flex: 1; min-width: 0; }
+.card-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.card-domain { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-cat {
+  display: inline-block; font-size: 10px; color: #fff; padding: 1px 7px;
+  border-radius: 9px; margin-top: 4px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 100%; line-height: 1.5;
+}
+.card-cat .icon-img { width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
+.card-delete {
+  position: absolute; top: 6px; right: 6px; width: 24px; height: 24px;
+  border-radius: 50%; border: none; background: var(--danger); color: white;
+  cursor: pointer; font-size: 14px; display: none; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s; z-index: 2; line-height: 1;
+}
+body.admin-mode .card-delete { display: flex; }
+.card:hover .card-delete { opacity: 1; }
+.card-delete:hover { transform: scale(1.15); }
+.card-select {
+  position: absolute; top: 8px; left: 8px; width: 18px; height: 18px;
+  cursor: pointer; z-index: 3; display: none; margin: 0; accent-color: var(--accent);
+}
+body.admin-mode .card-select { display: block; }
+.card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.25); }
+.move-select {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-primary); color: var(--text-primary); font-size: 13px; outline: none;
+  max-width: 150px; cursor: pointer;
+}
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-card); border-radius: 16px; max-width: 480px; width: 100%;
+  padding: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal h3 { font-size: 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-primary); color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+.icon-picker-row { display: flex; gap: 8px; align-items: center; }
+.icon-picker-row input[type="text"] { flex: 1; }
+.icon-picker-row .btn { flex-shrink: 0; padding: 10px 12px; }
+.icon-preview { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+.icon-preview img { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; background: var(--bg-primary); border: 1px solid var(--border); padding: 2px; }
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.emoji-grid .emoji-btn {
+  width: 36px; height: 36px; font-size: 20px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); cursor: pointer;
+  transition: all 0.15s; line-height: 1;
+}
+.emoji-grid .emoji-btn:hover { background: var(--bg-hover); transform: scale(1.1); }
+.emoji-grid .emoji-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+
+.icon-img { width: 1em; height: 1em; object-fit: contain; vertical-align: -0.15em; display: inline-block; }
+.cat-tag .icon-img { border-radius: 3px; }
+.cat-icon .icon-img { width: 26px; height: 26px; border-radius: 6px; }
+
+.guide-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.guide-item:last-of-type { border-bottom: none; }
+.guide-item .g-icon { font-size: 20px; flex-shrink: 0; }
+.guide-item .g-text h4 { font-size: 14px; margin-bottom: 2px; }
+.guide-item .g-text p { font-size: 12px; color: var(--text-secondary); }
+.guide-checkbox { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.guide-checkbox input { cursor: pointer; }
+
+.back-top {
+  position: fixed; bottom: 24px; right: 24px; width: 44px; height: 44px;
+  border-radius: 50%; background: var(--accent); color: white; border: none;
+  cursor: pointer; font-size: 18px; box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+  opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 50;
+}
+.back-top.show { opacity: 1; visibility: visible; }
+.back-top:hover { transform: translateY(-2px); }
+
+.footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text-primary); color: var(--bg-primary); padding: 10px 20px;
+  border-radius: var(--radius-sm); font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 2000;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 640px) {
+  .header { padding: 12px 16px; }
+  .main { padding: 16px; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+  .card { padding: 10px; }
+  .card-favicon { width: 32px; height: 32px; font-size: 14px; }
+  .logo { font-size: 16px; }
+  .stats { display: none; }
+  .admin-bar { padding: 8px 16px; }
+  .admin-bar .tip { display: none; }
+}
+.card.highlight { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.3); }
+</style>
+</head>
+<body class="admin-mode">
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">⭐ 我的书签导航 <span style="font-size:11px;opacity:0.5;font-weight:400;">v5</span></div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索网站名称或域名...">
+    </div>
+    <div class="header-actions">
+      <span class="stats" id="stats">5 个网站</span>
+      <button class="btn-icon" id="guideBtn" title="使用指引">❓</button>
+      <button class="btn-icon active" id="adminBtn" title="管理模式">⚙️</button>
+      <button class="btn-icon" id="themeBtn" title="切换主题">🌙</button>
+    </div>
+  </div>
+</header>
+
+<div class="admin-bar show" id="adminBar">
+  <div class="admin-bar-inner">
+    <span class="tip">✅ 管理模式：勾选网站可批量删除/移动</span>
+    <button class="btn btn-primary" id="addBtn">➕ 添加网站</button>
+    <button class="btn btn-warning" id="addCatBtn">📂 添加分类</button>
+    <button class="btn" id="selectAllBtn">☑️ 全选</button>
+    <button class="btn btn-danger" id="deleteSelectedBtn">🗑️ 删除所选</button>
+    <select id="moveCategory" class="move-select"><option value="">移动到...</option><option value="新媒体平台">新媒体平台</option><option value="舆情热点榜单">舆情热点榜单</option></select>
+    <button class="btn" id="moveBtn">📦 移动</button>
+    <button class="btn btn-success" id="exportBtn">💾 导出HTML</button>
+    <button class="btn" id="resetBtn">↩️ 恢复默认</button>
+  </div>
+</div>
+
+<nav class="cat-nav">
+  <div class="cat-nav-inner" id="catNav"><button type="button" class="cat-tag active" data-cat="all">📌 全部 <span class="count" id="totalCount">5</span></button><span class="cat-tag-row"><button type="button" class="cat-tag " data-cat="新媒体平台">🔥 新媒体平台 <span class="count">3</span></button><button type="button" class="cat-edit" data-cat="新媒体平台" title="编辑分类">✏️</button><button type="button" class="cat-del" data-cat="新媒体平台" title="删除分类">🗑️</button></span><span class="cat-tag-row"><button type="button" class="cat-tag " data-cat="舆情热点榜单">🔥 舆情热点榜单 <span class="count">2</span></button><button type="button" class="cat-edit" data-cat="舆情热点榜单" title="编辑分类">✏️</button><button type="button" class="cat-del" data-cat="舆情热点榜单" title="删除分类">🗑️</button></span></div>
+</nav>
+
+<main class="main" id="mainContent"><div class="card-grid"><a href="https://om.qq.com/" class="card" target="_blank" rel="noopener" style="--card-color:#eb2424;"><input type="checkbox" class="card-select" data-url="https://om.qq.com/"><div class="card-favicon">企</div><div class="card-info"><div class="card-title">企鹅号</div><div class="card-domain">om.qq.com</div><span class="card-cat" style="background:#eb2424;">🔥 新媒体平台</span></div><button class="card-delete" data-url="https://om.qq.com/" title="删除">×</button></a><a href="https://www.jianshu.com/" class="card" target="_blank" rel="noopener" style="--card-color:#eb2424;"><input type="checkbox" class="card-select" data-url="https://www.jianshu.com/"><div class="card-favicon">简</div><div class="card-info"><div class="card-title">简书</div><div class="card-domain">jianshu.com</div><span class="card-cat" style="background:#eb2424;">🔥 新媒体平台</span></div><button class="card-delete" data-url="https://www.jianshu.com/" title="删除">×</button></a><a href="https://www.zhihu.com/" class="card" target="_blank" rel="noopener" style="--card-color:#eb2424;"><input type="checkbox" class="card-select" data-url="https://www.zhihu.com/"><div class="card-favicon">知</div><div class="card-info"><div class="card-title">知乎</div><div class="card-domain">zhihu.com</div><span class="card-cat" style="background:#eb2424;">🔥 新媒体平台</span></div><button class="card-delete" data-url="https://www.zhihu.com/" title="删除">×</button></a><a href="https://piaofang.maoyan.com/" class="card" target="_blank" rel="noopener" style="--card-color:#24eb55;"><input type="checkbox" class="card-select" data-url="https://piaofang.maoyan.com/"><div class="card-favicon">电</div><div class="card-info"><div class="card-title">电影票房榜</div><div class="card-domain">piaofang.maoyan.com</div><span class="card-cat" style="background:#24eb55;">🔥 舆情热点榜单</span></div><button class="card-delete" data-url="https://piaofang.maoyan.com/" title="删除">×</button></a><a href="https://top.baidu.com/" class="card" target="_blank" rel="noopener" style="--card-color:#24eb55;"><input type="checkbox" class="card-select" data-url="https://top.baidu.com/"><div class="card-favicon">百</div><div class="card-info"><div class="card-title">百度热搜</div><div class="card-domain">top.baidu.com</div><span class="card-cat" style="background:#24eb55;">🔥 舆情热点榜单</span></div><button class="card-delete" data-url="https://top.baidu.com/" title="删除">×</button></a></div></main>
+
+<div class="empty-state" id="emptyState" style="display: none;">
+  <div class="icon">🔍</div>
+  <p>没有找到匹配的网站，换个关键词试试吧</p>
+</div>
+
+<!-- 添加/编辑网站弹窗 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3 id="addModalTitle">➕ 添加网站</h3>
+    <div class="form-group">
+      <label>网站名称</label>
+      <input type="text" id="addTitle" placeholder="例如：百度">
+    </div>
+    <div class="form-group">
+      <label>网站地址</label>
+      <input type="text" id="addUrl" placeholder="https://www.baidu.com">
+    </div>
+    <div class="form-group">
+      <label>所属分类</label>
+      <select id="addCategory"><option value="新媒体平台">🔥 新媒体平台</option><option value="舆情热点榜单">🔥 舆情热点榜单</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="addCancel">取消</button>
+      <button class="btn btn-primary" id="addConfirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 添加/编辑分类弹窗 -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <h3 id="catModalTitle">📂 添加分类</h3>
+    <div class="form-group">
+      <label>分类名称</label>
+      <input type="text" id="catName" placeholder="例如：工作工具">
+    </div>
+    <div class="form-group">
+      <label>图标（选择 emoji 或上传图片）</label>
+      <div class="icon-picker-row">
+        <input type="text" id="catIcon" placeholder="🔧" maxlength="8">
+        <button class="btn" id="catIconUpload" type="button">🖼️ 上传图片</button>
+        <input type="file" id="catIconFile" accept="image/*" style="display:none;">
+        <button class="btn" id="catIconClear" type="button" title="清除已上传图片">✖️</button>
+      </div>
+      <div class="icon-preview" id="iconPreview" style="display:none;">
+        <span class="icon-preview-label">当前图片：</span>
+        <span id="iconPreviewBox"></span>
+      </div>
+      <div class="emoji-grid" id="emojiGrid"><button type="button" class="emoji-btn" title="💼">💼</button><button type="button" class="emoji-btn" title="🚛">🚛</button><button type="button" class="emoji-btn" title="🏢">🏢</button><button type="button" class="emoji-btn" title="📰">📰</button><button type="button" class="emoji-btn" title="📋">📋</button><button type="button" class="emoji-btn" title="🤖">🤖</button><button type="button" class="emoji-btn" title="🎨">🎨</button><button type="button" class="emoji-btn" title="🎮">🎮</button><button type="button" class="emoji-btn" title="📚">📚</button><button type="button" class="emoji-btn" title="🛠️">🛠️</button><button type="button" class="emoji-btn" title="📱">📱</button><button type="button" class="emoji-btn" title="🧭">🧭</button><button type="button" class="emoji-btn" title="🔧">🔧</button><button type="button" class="emoji-btn" title="🏠">🏠</button><button type="button" class="emoji-btn" title="📈">📈</button><button type="button" class="emoji-btn" title="💡">💡</button><button type="button" class="emoji-btn" title="🔒">🔒</button><button type="button" class="emoji-btn" title="🗂️">🗂️</button><button type="button" class="emoji-btn" title="🌐">🌐</button><button type="button" class="emoji-btn" title="⭐">⭐</button><button type="button" class="emoji-btn" title="❤️">❤️</button><button type="button" class="emoji-btn" title="🔥">🔥</button><button type="button" class="emoji-btn" title="🎯">🎯</button><button type="button" class="emoji-btn" title="🧰">🧰</button><button type="button" class="emoji-btn" title="📦">📦</button><button type="button" class="emoji-btn" title="✈️">✈️</button><button type="button" class="emoji-btn" title="🚗">🚗</button><button type="button" class="emoji-btn" title="🏭">🏭</button><button type="button" class="emoji-btn" title="📞">📞</button><button type="button" class="emoji-btn" title="💬">💬</button><button type="button" class="emoji-btn" title="🎬">🎬</button><button type="button" class="emoji-btn" title="🎵">🎵</button><button type="button" class="emoji-btn" title="📷">📷</button><button type="button" class="emoji-btn" title="🍎">🍎</button><button type="button" class="emoji-btn" title="🏆">🏆</button><button type="button" class="emoji-btn" title="💰">💰</button><button type="button" class="emoji-btn" title="📅">📅</button><button type="button" class="emoji-btn" title="🧾">🧾</button><button type="button" class="emoji-btn" title="🚚">🚚</button><button type="button" class="emoji-btn" title="🔍">🔍</button></div>
+    </div>
+    <div class="form-group">
+      <label>主题色</label>
+      <input type="color" id="catColor" value="#2563eb" style="height:42px;padding:4px;">
+    </div>
+    <div class="form-group">
+      <label>分类描述</label>
+      <input type="text" id="catDesc" placeholder="简短描述这个分类">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="catCancel">取消</button>
+      <button class="btn btn-primary" id="catConfirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认删除弹窗 -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3>⚠️ 确认删除</h3>
+    <p id="confirmText" style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">确定要删除分类「资源导航」吗？</p>
+    <p id="confirmSub" style="font-size:12px;color:var(--text-muted);">该分类下有 8 个网站，将一并删除</p>
+    <div class="modal-actions">
+      <button class="btn" id="confirmCancel">取消</button>
+      <button class="btn btn-danger" id="confirmOk">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 使用指引弹窗 -->
+<div class="modal-overlay" id="guideOverlay">
+  <div class="modal">
+    <h3>📖 使用指引</h3>
+    <div class="guide-item">
+      <div class="g-icon">🔍</div>
+      <div class="g-text"><h4>快速搜索</h4><p>在顶部搜索框输入网站名称或域名，实时筛选匹配结果</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">📂</div>
+      <div class="g-text"><h4>分类浏览</h4><p>点击顶部分类标签，快速跳转到对应分类区域</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">⚙️</div>
+      <div class="g-text"><h4>管理模式</h4><p>点击右上角齿轮图标，可添加/删除网站、添加/编辑/删除分类</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">✏️</div>
+      <div class="g-text"><h4>编辑分类</h4><p>管理模式下，分类标签和分类标题旁会出现编辑按钮，可修改名称、图标、颜色</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">💾</div>
+      <div class="g-text"><h4>导出保存</h4><p>管理模式下点击"导出HTML"，下载后覆盖本文件即可永久保存修改</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">🌙</div>
+      <div class="g-text"><h4>明暗主题</h4><p>点击右上角月亮/太阳图标，切换深色或浅色模式</p></div>
+    </div>
+    <div class="guide-item">
+      <div class="g-icon">⌨️</div>
+      <div class="g-text"><h4>快捷键</h4><p>按 / 聚焦搜索框，按 ESC 关闭弹窗</p></div>
+    </div>
+    <label class="guide-checkbox">
+      <input type="checkbox" id="dontShowAgain"> 7 天内不再自动弹出此指引
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="guideClose" style="flex:1;justify-content:center;">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<button class="back-top" id="backTop" title="回到顶部">↑</button>
+<div class="toast" id="toast">✅ 添加成功</div>
+
+<footer class="footer">
+  <p>共收录 <strong id="footerCount">5</strong> 个网站 · 独立离线文档 · 支持本地管理</p>
+</footer>
+
+<script>
+const DATA_VERSION = 'v5';
+const DEFAULT_CATEGORIES = {
+  "新媒体平台": {
+    "icon": "🔥",
+    "color": "#eb2424",
+    "desc": "汇总主流自媒体、内容创作后台入口，适合新媒体运营快速切换各平台管理后台。"
+  },
+  "舆情热点榜单": {
+    "icon": "🔥",
+    "color": "#24eb55",
+    "desc": "聚合全网热搜、热榜、行业榜单，便于查看实时热点、行业排行，做内容选题与舆情参考。"
+  }
+};
+const DEFAULT_BOOKMARKS = [
+  {
+    "title": "企鹅号",
+    "url": "https://om.qq.com/",
+    "category": "新媒体平台"
+  },
+  {
+    "title": "简书",
+    "url": "https://www.jianshu.com/",
+    "category": "新媒体平台"
+  },
+  {
+    "title": "知乎",
+    "url": "https://www.zhihu.com/",
+    "category": "新媒体平台"
+  },
+  {
+    "title": "电影票房榜",
+    "url": "https://piaofang.maoyan.com/",
+    "category": "舆情热点榜单"
+  },
+  {
+    "title": "百度热搜",
+    "url": "https://top.baidu.com/",
+    "category": "舆情热点榜单"
+  }
+];
+
+let categories = {};
+let bookmarks = [];
+
+function loadData() { categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)); bookmarks = JSON.parse(JSON.stringify(DEFAULT_BOOKMARKS)); }
+
+function saveData() {
+  localStorage.setItem('bookmark-version', DATA_VERSION);
+  localStorage.setItem('bookmark-categories', JSON.stringify(categories));
+  localStorage.setItem('bookmarks-data', JSON.stringify(bookmarks));
+}
+
+// 数据一致性修复：确保书签、分类始终有效，避免"全部隐藏"问题
+function ensureCategoriesExist() {
+  if (!Array.isArray(bookmarks)) bookmarks = [];
+  if (!categories || typeof categories !== 'object') categories = {};
+  // 分类为空时，从书签里重建分类
+  if (Object.keys(categories).length === 0) {
+    const used = {};
+    bookmarks.forEach(b => { if (b.category) used[b.category] = true; });
+    Object.keys(used).forEach(name => {
+      const def = DEFAULT_CATEGORIES[name];
+      categories[name] = def ? JSON.parse(JSON.stringify(def)) : { icon: '📁', color: '#2563eb', desc: '' };
+    });
+  }
+  // 确保每个书签的分类都存在，不存在的归入兜底分类
+  const fallback = categories['资源导航'] || categories['实用工具'] || Object.keys(categories)[0];
+  bookmarks.forEach(b => {
+    if (!b.category) { b.category = fallback; }
+    else if (!categories[b.category]) {
+      if (DEFAULT_CATEGORIES[b.category]) categories[b.category] = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES[b.category]));
+      else if (fallback) b.category = fallback;
+      else categories[b.category] = { icon: '📁', color: '#2563eb', desc: '' };
+    }
+  });
+}
+
+function getDomain(url) {
+  try {
+    const u = new URL(url);
+    return u.hostname.replace(/^www\./, '');
+  } catch(e) { return url.substring(0, 30); }
+}
+function getInitial(title) {
+  for (const c of title) {
+    if (/[a-zA-Z0-9\u4e00-\u9fff]/.test(c)) return c.toUpperCase();
+  }
+  return '?';
+}
+// \u56fe\u6807\u53ef\u80fd\u662f emoji \u6587\u672c\uff0c\u4e5f\u53ef\u80fd\u662f\u56fe\u7247\uff08data URL / http \u5730\u5740\uff09\uff0c\u7edf\u4e00\u6e32\u67d3
+function renderIcon(icon, cls) {
+  if (icon && (icon.indexOf('data:') === 0 || icon.indexOf('http') === 0)) {
+    return '<img src="' + icon + '" class="icon-img' + (cls ? ' ' + cls : '') + '" alt="" />';
+  }
+  return escHtml(icon || '\ud83d\udcc1');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// 多选状态：当前勾选的网站 url，以及当前可见的网站 url
+let selectedUrls = new Set();
+let visibleUrls = [];
+
+// 更新全选按钮的状态反馈（文字 + 高亮）
+function updateSelectAllBtn() {
+  const btn = document.getElementById('selectAllBtn');
+  if (!btn) return;
+  const allChecked = visibleUrls.length > 0 && visibleUrls.every(u => selectedUrls.has(u));
+  btn.textContent = allChecked ? '✅ 取消全选' : '☑️ 全选';
+  btn.classList.toggle('active', allChecked);
+}
+
+function render() {
+  ensureCategoriesExist();
+  const main = document.getElementById('mainContent');
+  const catNav = document.getElementById('catNav');
+  const activeEl = document.querySelector('.cat-tag.active');
+  const activeCat = activeEl ? activeEl.dataset.cat : 'all';
+  const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+  const catCounts = {};
+  bookmarks.forEach(b => { catCounts[b.category] = (catCounts[b.category] || 0) + 1; });
+
+  // 分类导航（换行铺开，编辑/删除按钮平级，避免 button 嵌套）
+  let catHtml = '<button type="button" class="cat-tag ' + (activeCat === 'all' ? 'active' : '') + '" data-cat="all">📌 全部 <span class="count" id="totalCount">' + bookmarks.length + '</span></button>';
+  for (const [name, info] of Object.entries(categories)) {
+    const count = catCounts[name] || 0;
+    catHtml += '<span class="cat-tag-row">' +
+      '<button type="button" class="cat-tag ' + (activeCat === name ? 'active' : '') + '" data-cat="' + escHtml(name) + '">' +
+        renderIcon(info.icon, 'cat-tag-icon') + ' ' + escHtml(name) + ' <span class="count">' + count + '</span>' +
+      '</button>' +
+      '<button type="button" class="cat-edit" data-cat="' + escHtml(name) + '" title="编辑分类">✏️</button>' +
+      '<button type="button" class="cat-del" data-cat="' + escHtml(name) + '" title="删除分类">🗑️</button>' +
+      '</span>';
+  }
+  catNav.innerHTML = catHtml;
+  document.getElementById('totalCount').textContent = bookmarks.length;
+  document.getElementById('stats').textContent = bookmarks.length + ' 个网站';
+  document.getElementById('footerCount').textContent = bookmarks.length;
+
+  // 筛选：分类筛选 + 搜索
+  let list = bookmarks.slice();
+  if (activeCat !== 'all') list = list.filter(b => b.category === activeCat);
+  if (query) list = list.filter(b => (b.title || '').toLowerCase().includes(query) || getDomain(b.url).toLowerCase().includes(query));
+
+  // 记录当前可见的网站，供"全选"使用
+  visibleUrls = list.map(b => b.url);
+
+  // 填充"移动到"下拉
+  const moveSel = document.getElementById('moveCategory');
+  let moveHtml = '<option value="">移动到...</option>';
+  for (const [name] of Object.entries(categories)) {
+    moveHtml += '<option value="' + escHtml(name) + '">' + escHtml(name) + '</option>';
+  }
+  moveSel.innerHTML = moveHtml;
+
+  // 平铺显示所有卡片（每个卡片带分类徽章 + 多选框）
+  let cardsHtml = '';
+  for (const b of list) {
+    const info = categories[b.category] || { icon: '📁', color: '#2563eb' };
+    const checked = selectedUrls.has(b.url);
+    const cls = (query ? 'card highlight' : 'card') + (checked ? ' selected' : '');
+    cardsHtml += '<a href="' + escHtml(b.url) + '" class="' + cls + '" target="_blank" rel="noopener" style="--card-color:' + (info.color || '#2563eb') + ';">' +
+      '<input type="checkbox" class="card-select" data-url="' + escHtml(b.url) + '"' + (checked ? ' checked' : '') + ' />' +
+      '<div class="card-favicon">' + getInitial(b.title) + '</div>' +
+      '<div class="card-info">' +
+        '<div class="card-title">' + escHtml(b.title) + '</div>' +
+        '<div class="card-domain">' + escHtml(getDomain(b.url)) + '</div>' +
+        '<span class="card-cat" style="background:' + (info.color || '#2563eb') + ';">' + renderIcon(info.icon) + ' ' + escHtml(b.category) + '</span>' +
+      '</div>' +
+      '<button class="card-delete" data-url="' + escHtml(b.url) + '" title="删除">×</button>' +
+      '</a>';
+  }
+
+  main.innerHTML = cardsHtml ? '<div class="card-grid">' + cardsHtml + '</div>' : '';
+  document.getElementById('emptyState').style.display = list.length === 0 ? 'block' : 'none';
+
+  // 绑定删除网站
+  document.querySelectorAll('.card-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const url = btn.dataset.url;
+      const card = btn.closest('.card');
+      const title = card.querySelector('.card-title').textContent;
+      pendingAction = { type: 'delete-bookmark', url, title };
+      document.getElementById('confirmText').textContent = '确定要删除网站「' + title + '」吗？';
+      document.getElementById('confirmSub').textContent = '删除后可通过"恢复默认"找回全部原始书签';
+      document.getElementById('confirmModal').classList.add('show');
+    });
+  });
+
+  // 绑定多选框：click 只阻止跳转到链接，change 处理勾选状态
+  document.querySelectorAll('.card-select').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    cb.addEventListener('change', () => {
+      const url = cb.dataset.url;
+      if (cb.checked) selectedUrls.add(url); else selectedUrls.delete(url);
+      cb.closest('.card').classList.toggle('selected', cb.checked);
+      updateSelectAllBtn();
+    });
+  });
+
+  // 绑定编辑/删除分类（标签旁平级按钮）
+  document.querySelectorAll('.cat-edit').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCatModal(btn.dataset.cat);
+    });
+  });
+  document.querySelectorAll('.cat-del').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const catName = btn.dataset.cat;
+      const count = bookmarks.filter(b => b.category === catName).length;
+      pendingAction = { type: 'delete-category', catName };
+      document.getElementById('confirmText').textContent = '确定要删除分类「' + catName + '」吗？';
+      document.getElementById('confirmSub').textContent = count > 0 ? '该分类下有 ' + count + ' 个网站，将一并删除' : '该分类下没有网站';
+      document.getElementById('confirmModal').classList.add('show');
+    });
+  });
+
+  updateSelectAllBtn();
+}
+
+// 主题
+const themeBtn = document.getElementById('themeBtn');
+if (localStorage.getItem('bookmark-theme') === 'dark') {
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀️';
+}
+themeBtn.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) { document.documentElement.removeAttribute('data-theme'); themeBtn.textContent = '🌙'; localStorage.setItem('bookmark-theme','light'); }
+  else { document.documentElement.setAttribute('data-theme','dark'); themeBtn.textContent = '☀️'; localStorage.setItem('bookmark-theme','dark'); }
+});
+
+// 搜索
+document.getElementById('searchInput').addEventListener('input', () => {
+  if (document.getElementById('searchInput').value) {
+    document.querySelectorAll('.cat-tag').forEach(t => t.classList.remove('active'));
+    const allTag = document.querySelector('[data-cat="all"]');
+    if (allTag) allTag.classList.add('active');
+  }
+  render();
+});
+
+// 分类导航点击
+document.getElementById('catNav').addEventListener('click', (e) => {
+  if (e.target.closest('.cat-edit') || e.target.closest('.cat-del')) return;
+  const tag = e.target.closest('.cat-tag');
+  if (!tag) return;
+  document.querySelectorAll('.cat-tag').forEach(t => t.classList.remove('active'));
+  tag.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// 管理模式
+const adminBtn = document.getElementById('adminBtn');
+const adminBar = document.getElementById('adminBar');
+adminBtn.addEventListener('click', () => {
+  const isActive = document.body.classList.toggle('admin-mode');
+  adminBtn.classList.toggle('active', isActive);
+  adminBar.classList.toggle('show', isActive);
+});
+
+// 添加网站
+const addModal = document.getElementById('addModal');
+let editingUrl = null;
+
+function refreshCategorySelect() {
+  const sel = document.getElementById('addCategory');
+  sel.innerHTML = '';
+  for (const [name, info] of Object.entries(categories)) {
+    const optIcon = (info.icon && (info.icon.indexOf('data:') === 0 || info.icon.indexOf('http') === 0)) ? '🖼️' : (info.icon || '📁');
+    sel.innerHTML += '<option value="' + escHtml(name) + '">' + optIcon + ' ' + escHtml(name) + '</option>';
+  }
+}
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  editingUrl = null;
+  document.getElementById('addModalTitle').textContent = '➕ 添加网站';
+  document.getElementById('addTitle').value = '';
+  document.getElementById('addUrl').value = '';
+  refreshCategorySelect();
+  // 默认选中当前正在浏览的分类
+  const activeEl = document.querySelector('.cat-tag.active');
+  const activeCat = activeEl ? activeEl.dataset.cat : 'all';
+  if (activeCat !== 'all' && categories[activeCat]) {
+    document.getElementById('addCategory').value = activeCat;
+  }
+  addModal.classList.add('show');
+  setTimeout(() => document.getElementById('addTitle').focus(), 100);
+});
+document.getElementById('addCancel').addEventListener('click', () => addModal.classList.remove('show'));
+document.getElementById('addConfirm').addEventListener('click', () => {
+  const title = document.getElementById('addTitle').value.trim();
+  let url = document.getElementById('addUrl').value.trim();
+  const category = document.getElementById('addCategory').value;
+  if (!title || !url) { showToast('请填写网站名称和地址'); return; }
+  if (!/^https?:\/\//i.test(url) && !url.startsWith('qklink://')) { url = 'https://' + url; }
+  
+  if (editingUrl) {
+    const idx = bookmarks.findIndex(b => b.url === editingUrl);
+    if (idx >= 0) { bookmarks[idx] = { title, url, category }; }
+    showToast('✅ 修改成功');
+  } else {
+    bookmarks.push({ title, url, category });
+    showToast('✅ 添加成功');
+  }
+  saveData();
+  render();
+  addModal.classList.remove('show');
+});
+
+// 分类管理
+const catModal = document.getElementById('catModal');
+let editingCat = null;
+let currentIconImage = null; // 上传的图片（data URL），优先级高于 emoji 文本
+
+const EMOJI_LIST = ['💼','🚛','🏢','📰','📋','🤖','🎨','🎮','📚','🛠️','📱','🧭','🔧','🏠','📈','💡','🔒','🗂️','🌐','⭐','❤️','🔥','🎯','🧰','📦','✈️','🚗','🏭','📞','💬','🎬','🎵','📷','🍎','🏆','💰','📅','🧾','🚚','🔍'];
+
+function populateEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  EMOJI_LIST.forEach(emo => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'emoji-btn';
+    btn.textContent = emo;
+    btn.title = emo;
+    btn.addEventListener('click', () => {
+      document.getElementById('catIcon').value = emo;
+      currentIconImage = null;
+      updateIconPreview();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function updateIconPreview() {
+  const preview = document.getElementById('iconPreview');
+  const box = document.getElementById('iconPreviewBox');
+  const input = document.getElementById('catIcon');
+  if (currentIconImage) {
+    preview.style.display = 'flex';
+    box.innerHTML = '<img src="' + currentIconImage + '" alt="图标" />';
+    input.value = '';
+  } else {
+    preview.style.display = 'none';
+    box.innerHTML = '';
+  }
+}
+
+function openCatModal(catName) {
+  editingCat = catName;
+  currentIconImage = null;
+  if (catName && categories[catName]) {
+    document.getElementById('catModalTitle').textContent = '✏️ 编辑分类';
+    document.getElementById('catName').value = catName;
+    const icon = categories[catName].icon || '📁';
+    if (icon.indexOf('data:') === 0 || icon.indexOf('http') === 0) {
+      currentIconImage = icon;
+      document.getElementById('catIcon').value = '';
+    } else {
+      document.getElementById('catIcon').value = icon;
+    }
+    document.getElementById('catColor').value = categories[catName].color || '#2563eb';
+    document.getElementById('catDesc').value = categories[catName].desc || '';
+  } else {
+    editingCat = null;
+    document.getElementById('catModalTitle').textContent = '📂 添加分类';
+    document.getElementById('catName').value = '';
+    document.getElementById('catIcon').value = '📁';
+    document.getElementById('catColor').value = '#2563eb';
+    document.getElementById('catDesc').value = '';
+  }
+  updateIconPreview();
+  catModal.classList.add('show');
+  setTimeout(() => document.getElementById('catName').focus(), 100);
+}
+
+document.getElementById('addCatBtn').addEventListener('click', () => openCatModal(null));
+document.getElementById('catCancel').addEventListener('click', () => catModal.classList.remove('show'));
+document.getElementById('catConfirm').addEventListener('click', () => {
+  const name = document.getElementById('catName').value.trim();
+  const icon = currentIconImage || document.getElementById('catIcon').value.trim() || '📁';
+  const color = document.getElementById('catColor').value;
+  const desc = document.getElementById('catDesc').value.trim();
+  if (!name) { showToast('请填写分类名称'); return; }
+  
+  if (editingCat) {
+    // 重命名分类：更新所有书签的category
+    if (name !== editingCat) {
+      bookmarks.forEach(b => { if (b.category === editingCat) b.category = name; });
+      delete categories[editingCat];
+    }
+    categories[name] = { icon, color, desc };
+    showToast('✅ 分类已更新');
+  } else {
+    if (categories[name]) { showToast('该分类已存在'); return; }
+    categories[name] = { icon, color, desc };
+    showToast('✅ 分类已添加');
+  }
+  saveData();
+  render();
+  catModal.classList.remove('show');
+});
+
+// 分类图标：上传图片 & 清除
+document.getElementById('catIconUpload').addEventListener('click', () => {
+  document.getElementById('catIconFile').click();
+});
+document.getElementById('catIconFile').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!/^image\//.test(file.type)) { showToast('请选择图片文件'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      // 缩小到 64x64，避免 base64 过大撑爆 localStorage
+      const size = 64;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.min(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      currentIconImage = canvas.toDataURL('image/png');
+      updateIconPreview();
+      showToast('🖼️ 图片已载入');
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+document.getElementById('catIconClear').addEventListener('click', () => {
+  currentIconImage = null;
+  if (!document.getElementById('catIcon').value) document.getElementById('catIcon').value = '📁';
+  updateIconPreview();
+});
+
+populateEmojiGrid();
+
+// 确认弹窗
+let pendingAction = null;
+document.getElementById('confirmCancel').addEventListener('click', () => {
+  pendingAction = null;
+  document.getElementById('confirmModal').classList.remove('show');
+});
+document.getElementById('confirmOk').addEventListener('click', () => {
+  if (!pendingAction) { document.getElementById('confirmModal').classList.remove('show'); return; }
+  
+  if (pendingAction.type === 'delete-bookmark') {
+    bookmarks = bookmarks.filter(b => b.url !== pendingAction.url);
+    selectedUrls.delete(pendingAction.url);
+    showToast('🗑️ 网站已删除');
+  } else if (pendingAction.type === 'delete-selected') {
+    const n = selectedUrls.size;
+    bookmarks = bookmarks.filter(b => !selectedUrls.has(b.url));
+    selectedUrls.clear();
+    showToast('🗑️ 已删除 ' + n + ' 个网站');
+  } else if (pendingAction.type === 'delete-category') {
+    const catName = pendingAction.catName;
+    // 直接删除分类及其下所有网站（不移动）
+    bookmarks = bookmarks.filter(b => b.category !== catName);
+    selectedUrls.clear();
+    delete categories[catName];
+    showToast('🗑️ 分类及其中网站已删除');
+  }
+  
+  pendingAction = null;
+  saveData();
+  render();
+  document.getElementById('confirmModal').classList.remove('show');
+});
+
+// 恢复默认
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('确定要恢复全部默认书签和分类吗？当前所有修改将丢失。')) {
+    categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    bookmarks = JSON.parse(JSON.stringify(DEFAULT_BOOKMARKS));
+    selectedUrls.clear();
+    saveData();
+    render();
+    showToast('↩️ 已恢复默认');
+  }
+});
+
+// 全选 / 取消全选（作用于当前可见的网站）
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+  const allChecked = visibleUrls.length > 0 && visibleUrls.every(u => selectedUrls.has(u));
+  if (allChecked) {
+    visibleUrls.forEach(u => selectedUrls.delete(u));
+    showToast('已取消全选');
+  } else {
+    visibleUrls.forEach(u => selectedUrls.add(u));
+    showToast('已全选 ' + visibleUrls.length + ' 个网站');
+  }
+  render();
+});
+
+// 批量删除选中的网站
+document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+  const count = selectedUrls.size;
+  if (count === 0) { showToast('请先勾选要删除的网站'); return; }
+  pendingAction = { type: 'delete-selected' };
+  document.getElementById('confirmText').textContent = '确定要删除选中的 ' + count + ' 个网站吗？';
+  document.getElementById('confirmSub').textContent = '删除的是书签链接，可通过"恢复默认"找回原始书签';
+  document.getElementById('confirmModal').classList.add('show');
+});
+
+// 移动选中的网站到目标分类
+document.getElementById('moveBtn').addEventListener('click', () => {
+  const target = document.getElementById('moveCategory').value;
+  const count = selectedUrls.size;
+  if (count === 0) { showToast('请先勾选要移动的网站'); return; }
+  if (!target) { showToast('请选择目标分类'); return; }
+  bookmarks.forEach(b => { if (selectedUrls.has(b.url)) b.category = target; });
+  selectedUrls.clear();
+  saveData();
+  render();
+  showToast('📦 已移动 ' + count + ' 个网站到「' + target + '」');
+});
+
+// 导出HTML
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const catJs = JSON.stringify(categories, null, 2);
+  const bmJs = JSON.stringify(bookmarks, null, 2);
+  let html = document.documentElement.outerHTML;
+  html = html.replace(/const DEFAULT_CATEGORIES = \{[\s\S]*?\n\};/, 'const DEFAULT_CATEGORIES = ' + catJs + ';');
+  html = html.replace(/const DEFAULT_BOOKMARKS = \[[\s\S]*?\n\];/, 'const DEFAULT_BOOKMARKS = ' + bmJs + ';');
+  html = html.replace(/function loadData\(\) \{[\s\S]*?\n\}/, 'function loadData() { categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)); bookmarks = JSON.parse(JSON.stringify(DEFAULT_BOOKMARKS)); }');
+  html = html.replace('<title>', '<!-- 导出版本 -->\n<title>');
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '书签.htm';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('💾 已导出，下载后覆盖原文件即可永久保存');
+});
+
+// 指引：基于时间，勾选"不再自动弹出"后 7 天再重新弹出；换浏览器（清缓存）也会重新弹出
+const guideOverlay = document.getElementById('guideOverlay');
+const GUIDE_KEY = 'bookmark-guide-seen-time';
+const GUIDE_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
+
+function guideMarkSeen() { localStorage.setItem(GUIDE_KEY, String(Date.now())); }
+function shouldShowGuide() {
+  const last = localStorage.getItem(GUIDE_KEY);
+  if (!last) return true;
+  return (Date.now() - parseInt(last, 10)) > GUIDE_MS;
+}
+
+document.getElementById('guideBtn').addEventListener('click', () => guideOverlay.classList.add('show'));
+document.getElementById('guideClose').addEventListener('click', () => {
+  if (document.getElementById('dontShowAgain').checked) guideMarkSeen();
+  guideOverlay.classList.remove('show');
+});
+guideOverlay.addEventListener('click', (e) => {
+  if (e.target === guideOverlay) {
+    if (document.getElementById('dontShowAgain').checked) guideMarkSeen();
+    guideOverlay.classList.remove('show');
+  }
+});
+if (shouldShowGuide()) {
+  setTimeout(() => guideOverlay.classList.add('show'), 500);
+}
+
+// 回到顶部
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => backTop.classList.toggle('show', window.scrollY > 300));
+backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// 快捷键
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
+    e.preventDefault(); document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+    document.getElementById('searchInput').blur();
+  }
+});
+
+// 初始化
+try {
+  loadData();
+  render();
+} catch (e) {
+  // 兜底：即使出错也尝试用默认数据渲染，绝不静默空白
+  try {
+    bookmarks = JSON.parse(JSON.stringify(DEFAULT_BOOKMARKS));
+    categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    render();
+  } catch (e2) {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="empty-state"><div class="icon">⚠️</div><p>页面加载出错：' + escHtml(e2.message || e2) + '</p></div>';
+  }
+}
+</script>
+
+</body></html>
